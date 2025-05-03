@@ -1,0 +1,1481 @@
+\documentclass[11pt]{article}		% 设置字体大小
+
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage[]{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\PassOptionsToPackage{hyphens}{url} % url is loaded by hyperref
+\usepackage[unicode=true]{hyperref}
+\hypersetup{
+            pdfauthor={Lese},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage[top=20mm,left=20mm,right=20mm,bottom=20mm]{geometry}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+% set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+
+\usepackage{xeCJK}
+\usepackage{minted}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\setminted{breaklines}
+\setminted{linenos}
+
+
+\date{}
+
+\begin{document}
+
+\begin{titlepage}		% 封面设置
+\maketitle
+
+\vspace{2cm}
+\centerline{\title{\fontsize{50pt}{15pt} \textbf{ACM算法模板}}}
+
+
+\vspace{5cm}
+\centerline{\includegraphics[width=12cm]{icpcfoundation.jpg}}
+
+\vspace{1.6cm}
+\centerline{\author{\Huge Lese}}
+
+\vspace{0.5cm}
+\centerline{\date{\huge \today}}
+
+\thispagestyle{empty}
+\end{titlepage}
+
+
+\clearpage				% 空白页
+\thispagestyle{empty}	% 无页码
+\phantom{s}
+\clearpage
+
+\newpage
+\setcounter{page}{1} 	% 从当前位置开始设置页码
+
+\pagestyle{fancy} 		% 目录页设置页眉
+\fancyhead[RO,LE]{\textbf{ACM 模板  by Lese}}
+
+{
+\setcounter{tocdepth}{3}
+\tableofcontents
+}
+
+
+\newpage
+
+\pagestyle{fancy}
+
+\fancyhead[RO,LE]{\textbf{ACM 模板  by Lese}}
+
+\section{1 字符串}\label{ux5b57ux7b26ux4e32}
+
+\subsection{1.1 字符串哈希}\label{ux5b57ux7b26ux4e32ux54c8ux5e0c}
+
+\begin{minted}[]{cpp}
+//const int M = 1e9 + 7;//小质数
+const ll MOD = 212370440130137957ll;//大质数
+int idx(char ch) {//得到字符对应的数值
+    if(ch>='0'&&ch<='9') return ch-'0';
+    if(ch>='a'&&ch<='z') return ch-'a'+10;
+    if(ch>='A'&&ch<='Z') return ch-'A'+36;
+}
+//s为对应字符串，bas为对应进制数
+ull get_hash(const string& s, const int bas) {//131或13331
+    ull ans = 0;
+    int len = s.size();
+    for(int i = 0;i < len;i++) {
+        ans = (ans*bas+idx(s[i]))%MOD;
+    }
+    return ans;
+}
+\end{minted}
+
+\subsection{1.2 KMP算法}\label{kmpux7b97ux6cd5}
+
+\begin{minted}[]{cpp}
+const int MAXN = 1e6+6;
+int len_n,len_m,nextt[MAXN];//注意先处理n和m的长度
+char n[MAXN],m[MAXN];//n为长串，m为短串
+void get_nextt() {//自身匹配
+    int i = 0,j = -1;
+    nextt[i] = j;
+    while(i<len_m) {//目标串长度
+        if(m[i] == m[j]||j == -1) nextt[++i] = ++j;
+        else j = nextt[j];//自身回退
+    }
+}
+bool kmp() {
+    int i = 0, j = 0;
+    get_nextt();
+    while(i<len_n&&j<len_m) {
+        if(n[i]==m[j]||j==-1) i++,j++;//匹配成功都会后移！！！
+        else j = nextt[j];//回退
+    }
+    if(j == len_m) return true;//len_m表示匹配成功
+    return false;
+}
+\end{minted}
+
+\subsection{1.3 EXKMP算法}\label{exkmpux7b97ux6cd5}
+
+\begin{minted}[]{cpp}
+//nxt[i]: b[i···n-1]与b的LCP值
+//extend[i]: a[i···n-1]与b的LCP值
+const int MAXN = 2e7+5;
+int nxt[MAXN], extend[MAXN];
+void pre_exkmp(string s) {
+    int n = (int)s.length();
+    nxt[0] = n;
+    //[l, r]为z-box区间
+    for(int i = 1, l = 0, r = 0;i < n;++i) {
+        if(i <= r && nxt[i - l] < r - i + 1) {//r-i+1为剩余区间大小
+            nxt[i] = nxt[i - l];
+        }
+        else {
+            nxt[i] = max(0, r - i + 1);
+            while(i + nxt[i] < n && s[nxt[i]] == s[i + nxt[i]]) ++nxt[i];
+        }
+        if(i + nxt[i] - 1 > r) l = i, r = i + nxt[i] - 1;
+    }
+}
+void exkmp(string a, string b) {//a为长串，b为短串
+    pre_exkmp(b);
+    int n = a.size();
+    while(a[extend[0]] == b[extend[0]]) extend[0]++;//特判第一位置的值
+    for(int i = 1,l = 0, r = 0;i < n; ++i) {
+        if(i <= r && nxt[i-l] < r - i + 1) {
+            extend[i] = nxt[i - l];
+        }
+        else {
+            extend[i] = max(0, r - i + 1);
+            while(i + extend[i] < n && b[extend[i]] == a[i + extend[i]]) 
+                ++extend[i];
+        }
+        if(i + extend[i] - 1 > r) l = i, r = i + extend[i] - 1;
+    }
+}
+\end{minted}
+
+\subsection{1. 4 Manacher算法}\label{manacherux7b97ux6cd5}
+
+\begin{minted}[]{cpp}
+const int MAXN = 11e6 + 5;
+char s[MAXN], ma[MAXN*2];
+int mp[MAXN*2];//num[i] 为在s中以对应位置为中心的极大子回文串的总长度+1
+int Manacher(char *s, int siz){//siz为字符串长度
+    int len = 0;
+    ma[len++] = '$'; ma[len++] = '#';
+    for(int i = 0;i < siz;i++){
+        ma[len++] = s[i];
+        ma[len++] = '#';
+    }
+    ma[len] = 0;//末尾为空字符
+    int mx = 0, id = 0;//id为局部最大回文串中心点，mx为右边界
+    int res = 0;
+    for(int i = 0;i < len;i++) {
+        //由于对于i的对称点j（j小）来说：id - j = i - id 推出 j = 2id-i
+        mp[i] = mx > i ? min(mp[2*id-i], mx - i) : 1;
+        while(ma[i+mp[i]] == ma[i-mp[i]]) mp[i]++;//暴力枚举
+        if(i + mp[i] > mx) {//更新局部最大回文串
+            mx = mp[i] + i;
+            id = i;
+        }
+        res = max(res, mp[i] - 1);
+        //mp[i]为左部分大小，但是包括了#的数量，而且#数量比原字符串多，所以需-1
+    }
+    return res;//为最长回文串长度
+}
+\end{minted}
+
+\subsection{1.5 AC自动机}\label{acux81eaux52a8ux673a}
+
+\begin{minted}[]{cpp}
+const int MAXN = 1e6+5;
+char s[MAXN];
+namespace AC {
+    int tr[MAXN][26], tot;
+    int e[MAXN], fail[MAXN];//e记录节点对应的字符串出现次数
+    queue<int> q;
+    void init() {
+        for(int i = 0;i <= tot;i++) {//把用过的节点清空
+            memset(tr[i], 0, sizeof tr[i]);
+            fail[i] = e[i] = 0;
+        }
+        tot = 0;
+    }
+    void insert(char *s) {//插入一个字符串（建字典树）
+        int u = 0;
+        int len = strlen(s + 1);
+        for(int i = 1;i <= len;i++) {//字符串从1开始记录
+            if(!tr[u][s[i] - 'a']) {
+                tr[u][s[i] - 'a'] = ++tot;
+            }
+            u = tr[u][s[i] - 'a'];
+        }
+        e[u] ++;
+    }
+    void build() {//建fail树
+        for(int i = 0;i < 26;i++) if(tr[0][i]) q.push(tr[0][i]);
+        while(q.size()) {
+            int u = q.front();q.pop();
+            for(int i = 0;i < 26;i++) {
+                if(tr[u][i]) fail[tr[u][i]] = tr[fail[u]][i],q.push(tr[u][i]);
+                else tr[u][i] = tr[fail[u]][i];
+            }
+        }
+    }
+    int query(char *t) {//t为需要查询的字符串
+        int u = 0, res = 0;
+        for(int i = 1;t[i];i++) {//字符串从位置1开始匹配
+            u = tr[u][t[i] - 'a'];
+            for(int j = u;j && e[j] != -1;j = fail[j])
+                res += e[j], e[j] = -1;
+        }
+        return res;
+    }
+}
+int main() {
+    AC::init();//清空数组
+    int n;cin>>n;
+    for(int i = 1;i <= n;i++) {
+        cin>>(s+1);
+        AC::insert(s);
+    }
+    AC::build();//记得建fail树！！！
+    cin>>(s+1);
+    cout<<AC::query(s);
+    return 0;
+}
+\end{minted}
+
+\subsection{1.6 字典树}\label{ux5b57ux5178ux6811}
+
+\begin{minted}[]{cpp}
+struct Trie {
+    static const int SIZE = 2e5+5;
+    int nex[SIZE][26], cnt;
+//    bool exist[SIZE];  // 该结点结尾的字符串是否存在
+    void init() {
+        cnt = 0;//0为根节点，无对应值
+        memset(nex, 0, sizeof(nex));
+//        memset(exist, 0, sizeof(exist));
+    }
+    int insert(char *s, int l) {  // 插入字符串，l为字符串长度
+        int p = 0;
+        for (int i = 0; i < l; i++) {
+            int c = s[i] - 'a';
+            if (!nex[p][c]) nex[p][c] = ++cnt;  // 如果没有，就添加结点
+            p = nex[p][c];
+        }
+//        exist[p] = 1;//类型为void时
+        return p;//返回对应节点
+    }
+    int find(char *s, int l) {  // 查找字符串，l为字符串长度
+        int p = 0;
+        for (int i = 0; i < l; i++) {
+            int c = s[i] - 'a';
+            if (!nex[p][c]) return 0;
+            p = nex[p][c];
+        }
+        return p;//返回对应节点（0为不存在
+//        return exist[p];//用bool类型时使用
+    }
+}t;
+\end{minted}
+
+\newpage
+
+\pagestyle{fancy}
+
+\fancyhead[RO,LE]{\textbf{ACM 模板  by Lese}}
+
+\section{2 数论}\label{ux6570ux8bba}
+
+\subsection{2.1 埃式筛}\label{ux57c3ux5f0fux7b5b}
+
+\begin{minted}[]{cpp}
+const int MAXV = 1e6;
+const int MAXN = 8e4+8;//共78498个质数
+int prim[MAXN], v[MAXV+10], cnt;//v判断当前数是否为质数
+void get_prim() {
+    for(int i = 2;i <= MAXV;i++) {
+        if(v[i]) continue;
+        prim[++cnt] = i;
+        for(int j = i+i;j <= MAXV;j+=i) {
+            v[j] = 1;
+        }
+    }
+}
+\end{minted}
+
+\subsection{2.2 线性筛}\label{ux7ebfux6027ux7b5b}
+
+\subsubsection{2.2.1 质数}\label{ux8d28ux6570}
+
+\begin{minted}[]{cpp}
+const int MAXV = 1e8;
+const int MAXN = 6e6+6;//共5761455个质数
+int prim[MAXN], v[MAXV+10], cnt;//v记录最小质因子
+void get_prim() {
+    for(int i = 2;i <= MAXV;i++) {
+        if(v[i]==0) {
+            prim[++cnt] = i;
+            v[i] = i;
+        }
+        for(int j = 1;j <= cnt;j++) {
+            if(i*1ll*prim[j]>MAXV||v[i]<prim[j]) break;
+            v[i*prim[j]] = prim[j];
+        }
+    }
+}
+\end{minted}
+
+\subsubsection{2.2.2 欧拉函数}\label{ux6b27ux62c9ux51fdux6570}
+
+\(1 \sim N\) 中与 \(N\) 互质的数的个数被称为欧拉函数，记为
+\(\varphi(N)\) 。
+
+\begin{minted}[]{cpp}
+const int MAXN = 1e6+5;
+int v[MAXN], prim[MAXN], phi[MAXN], cnt;//phi为欧拉函数值，v为最小质因子
+void euler(int n) {
+    phi[1] = 1;
+    for(int i = 2;i <= n;i++) {
+        if(v[i]==0) {
+            v[i] = i, prim[++cnt] = i;
+            phi[i] = i-1;
+        }
+        for(int j = 1;j <= cnt;j++) {
+            if(v[i]<prim[j] || prim[j]>n/i) break;
+            v[i*prim[j]] = prim[j];
+            phi[i*prim[j]] = phi[i]*( i%prim[j] ?prim[j]-1:prim[j]);
+        }
+    }
+}
+\end{minted}
+
+\subsubsection{2.2.3
+莫比乌斯函数}\label{ux83abux6bd4ux4e4cux65afux51fdux6570}
+
+当N包含\textbf{相等的质因子}时，\(\mu (N) = 0\)。当N的所有质因子各不相等时，若N有\textbf{偶数个质因子}，\(\mu(N) = 1\)，若N有\textbf{奇数个质因子}，\(\mu (N) = -1\)。
+
+\begin{minted}[]{cpp}
+const int MAXN = 1000000;
+bool check[MAXN+10];
+int prime[MAXN+10], mu[MAXN+10];
+void Moblus(){
+    memset(check,false,sizeof(check));
+    mu[1] = 1;
+    int tot = 0;
+    for(int i = 2; i <= MAXN; i++) {
+        if(!check[i]) {
+            prime[tot++] = i;
+            mu[i] = -1;
+        }
+        for(int j = 0; j < tot; j++) {
+            if(i * prime[j] > MAXN) break;
+            check[i * prime[j]] = true;
+            if( i % prime[j] == 0){
+                mu[i * prime[j]] = 0;
+                break;
+            }
+            else{
+                mu[i * prime[j]] = -mu[i];
+            }
+        }
+    }
+}
+\end{minted}
+
+\subsection{2.3 Lucas定理}\label{lucasux5b9aux7406}
+
+\begin{minted}[]{cpp}
+ll f[MAXN];//存储阶乘
+void init(int p) {//记得先初始化阶乘！！！
+    f[0] = 1;
+    for(int i = 1;i < p;i++) {
+        f[i] = (f[i-1] * i)%p;
+    }
+}
+ll poww(ll a,ll b, ll p) {//a^b
+    ll ans = 1;
+    while(b) {
+        if(b&1) ans = (ans*a)%p;
+        a = (a*a)%p;
+        b >>= 1;
+    }
+    return ans%p;
+}
+ll C(ll n, ll m, ll p) {//C(n, m)
+    if(m>n) return 0;
+    return ((f[n]*poww(f[m], p-2, p))%p * poww(f[n-m], p-2, p))%p;
+}
+ll lucas(ll n, ll m, ll p) {
+    if(m==0) return 1;
+    return (lucas(n/p, m/p, p) * C(n%p, m%p, p)) %p;
+}
+\end{minted}
+
+\subsection{2.4 求逆元}\label{ux6c42ux9006ux5143}
+
+\subsubsection{2.4.1 费马小定理}\label{ux8d39ux9a6cux5c0fux5b9aux7406}
+
+当模数 \(p\) 为\textbf{质数}时， \(b^{p-2}\) 即为 \(b\) 的乘法逆元
+
+\begin{minted}[]{cpp}
+ll poww(ll a, ll b, ll p) {//a的b次方
+    ll ans = 1;//ans为结果
+    while(b) {
+        if(b&1) ans = (ans*a)%p;
+        a = (a*a)%p;//二进制每次乘都要翻倍 
+        b >>= 1;
+    }
+    return ans%p;   
+}
+ll inv(ll a, ll p) { return pow(a, p - 2, p); }
+\end{minted}
+
+\subsubsection{2.4.2
+扩展欧几里得算法}\label{ux6269ux5c55ux6b27ux51e0ux91ccux5f97ux7b97ux6cd5}
+
+\begin{minted}[]{cpp}
+ll exgcd(ll a, ll b, ll &x,ll &y) {
+    if(b==0) { x = 1, y = 0; return a;}
+    ll d = exgcd(b, a%b, x, y);
+    ll z = x; x = y; y = z - y * (a/b);
+    return d;
+}
+int main() {
+    ll a, b, x, y;
+    cin>>a>>b;
+    exgcd(a, b, x, y);
+    cout<<(x%b+b)%b;//由于原式中mod的值是b，所以可以%b（输出即为逆元的值）
+    return 0;
+}
+\end{minted}
+
+\subsubsection{2.4.3 线性求法}\label{ux7ebfux6027ux6c42ux6cd5}
+
+\begin{minted}[]{cpp}
+inv[1] = 1;//inv为longlong数组
+for(int i = 2; i < p; ++ i)
+    inv[i] = (p - p / i) * inv[p % i] % p;//取模p所以可以 +p
+\end{minted}
+
+\subsection{2.5 矩阵快速幂}\label{ux77e9ux9635ux5febux901fux5e42}
+
+\begin{minted}[]{cpp}
+const int MAXN = 105;
+const int MOD = 1e9+7;
+struct matrix{
+    int r, c;
+    ll s[MAXN][MAXN];
+    matrix(int r = 0,int c = 0):r(r),c(c) {
+        memset(s, 0, sizeof s);
+    }
+};
+matrix operator* (const matrix& a, const matrix& b) {
+    matrix c = matrix(a.r, b.c);
+    for (int i = 0; i < c.r;i++) {
+        for (int j = 0; j < c.c;j++)
+            for (int k = 0; k < a.c;k++)
+                // c.s[i][j] += a.s[i][k] * b.s[k][j];
+                c.s[i][j] = (c.s[i][j] + a.s[i][k]*b.s[k][j]%MOD)%MOD;
+    }
+    return c;
+}
+matrix power(matrix a,ll b) {
+    matrix res = a;
+    b--;
+    while(b) {
+        if(b&1) res = res * a;
+        a = a*a;
+        b >>= 1;
+    }
+    return res;
+}
+int main() {
+    ll n, k;
+    cin>>n>>k;
+    matrix a(n, n);
+    for(int i = 0;i < n;i++) {
+        for(int j = 0;j < n;j++) cin>>a.s[i][j];
+    }
+    matrix ans = power(a, k);
+    for(int i = 0;i < n;i++) {
+        for(int j = 0;j < n;j++) {
+            if(j) cout<<" ";
+            cout<<(ans.s[i][j]+MOD)%MOD;
+        }
+        cout<<"\n";
+    }
+    return 0;
+}
+\end{minted}
+
+\subsection{2.6 O(1)快速乘}\label{o1ux5febux901fux4e58}
+
+\begin{minted}[]{cpp}
+long long mul(long long a, long long b, long long p) {
+    return (a * b - (long long) (a / (long double) p * b + 1e-3) * p + p) % p;
+}
+\end{minted}
+
+\subsection{2.7 Miller-Rabin}\label{miller-rabin}
+
+快速判断一个数是否为质数
+
+\begin{minted}[]{cpp}
+long long poww(long long a, long long n, long long mod) {
+    long long res = 1;//mul为快速乘（3.6）
+    for (; n; n >>= 1, a = mul(a, a, mod)) if (n & 1) res = mul(res, a, mod);
+    return res;
+}
+bool isPrime(long long n) {
+    const static int primes[12] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37};
+
+    long long s = 0, d = n - 1;
+    while (d % 2 == 0) d /= 2, s++;
+    if (s == 0) return n == 2;
+
+    for (int i = 0; i < 12 && primes[i] < n; i++) {
+        long long a = primes[i];
+        if (poww(a, d, n) != 1) {
+            bool flag = true;
+            for (int r = 0; r < s; r++)
+                if (flag && poww(a, d * (1 << r), n) == n - 1) flag = false;
+            if (flag) return false;
+        }
+    }
+
+    return true;//true为是质数
+}
+\end{minted}
+
+\subsection{2.8 Pollard's Rho}\label{pollards-rho}
+
+快速分解质因子
+
+\begin{minted}[]{cpp}
+long long gcd(long long a, long long b) {
+    return b ? gcd(b, a % b) : a;
+}
+namespace PollardRho {
+    long long g(long long x, long long n, long long c) {
+        return (mul(x, x, n) + c) % n;//mul为快速乘（3.6）
+    }
+    long long rho(long long n, long long c) {
+        long long x = rand() % n, y = x, d = 1;
+
+        for (long long i = 1, k = 2; d == 1; i++) {
+            x = g(x, n, c);
+            d = gcd(x > y ? x - y : y - x, n);
+            if (x == y) return n;
+            if (i == k) k <<= 1, y = x;
+        }
+
+        return d;
+    }
+    void find(long long n, long long c, std::map<long long, int> &res) {
+        if (n == 1) return;
+        if (isPrime(n)) {//isPrime为Miller-Rabin（3.7）
+            res[n]++;
+            return;
+        }
+
+        long long p = n;
+        while (p == n) p = rho(p, c++);
+        find(p, c, res);
+        find(n / p, c, res);
+    }
+    std::map<long long, int> divide(long long n) {
+        static std::map<long long, int> res;
+        res.clear();
+        find(n, 1, res);
+        return res;//res.begin()->fi即为最小质因子
+    }
+}
+\end{minted}
+
+\subsection{2.9 BGSG算法}\label{bgsgux7b97ux6cd5}
+
+求解式子 \(a^x \equiv b (mod \ n)\) ，其中 \(0 <= x < n\)。
+
+\textbf{注意：需要满足a和n互质，但是n是素数和不是素数都可以（不限条件）}
+
+\begin{minted}[]{cpp}
+#define MOD 76543
+ll hs[MOD],head[MOD],nextt[MOD],id[MOD],top;
+void insert(int x,int y){
+    ll k = x%MOD;
+    hs[top] = x, id[top] = y, nextt[top] = head[k], head[k] = top++;
+}
+ll find(ll x){
+    ll k = x%MOD;
+    for(int i = head[k]; i != -1; i = nextt[i])
+        if(hs[i] == x)
+        return id[i];
+    return -1;
+}
+ll BSGS(ll a, ll b, ll n) {//a为底数，b为值，n为模数
+    memset(head, -1, sizeof(head));
+    top = 1;
+    if(b == 1)return 0;
+    ll m = sqrt(n*1.0), j;
+    long long x = 1, p = 1;
+    for(int i = 0; i < m; ++i, p = p*a%n)insert(p*b%n,i);
+    for(long long i = m; ;i += m){
+        if( (j = find(x = x*p%n)) != -1) return i-j;
+        if(i > n)break;
+    }
+    return -1;
+}
+\end{minted}
+
+\subsection{2.10 斯特林数}\label{ux65afux7279ux6797ux6570}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  把n个不同的球分成r个非空循环排列的方法数
+\end{enumerate}
+
+递推形式 : \$s(n, r) = (n-1)s(n-1, r) + s(n-1, r-1), n \textgreater{} r
+≥ 1 \$
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  把n个不同的球放到r个盒子里，假设没有空盒，则放球方案数记作\(S(n,r)\)，称为第二类Stirling数
+\end{enumerate}
+
+\(S(n,r)=rS(n−1,r)+S(n−1,r−1),n>r≥1\) \newpage
+ \pagestyle{fancy}
+
+\fancyhead[RO,LE]{\textbf{ACM 模板  by Lese}}
+
+\section{3 数据结构}\label{ux6570ux636eux7ed3ux6784}
+
+\subsection{3.1 RMQ}\label{rmq}
+
+\begin{minted}[]{cpp}
+const int MAXN = 1e5+5;
+int f[MAXN][20];
+void RMQ_init() {
+    for(int i = 1;i <= n;i++) f[i][0] = a[i];//边界
+    int siz = log(n)/log(2);//siz只用于计算倍增规模！！！
+    for(int i = 1;i <= siz;i++) {
+        //j为起点， j+(1<<i)-1为终点
+        //i大区间分成两个(i-1)小区间
+        for(int j = 1;j+(1<<i)-1 <= n;j++) {
+            int len = 1<<(i-1);//大区间分成两个小区间
+            f[j][i] = max(f[j][i-1], f[j+len][i-1]);
+        }
+    }
+}
+int query(int l,int r) {// 求[l,r]区间最大值
+    int siz = log(r-l+1)/log(2);
+    return max(f[l][siz],f[r-(1<<siz)+1][siz]);
+}
+\end{minted}
+
+\subsection{3.2
+树状数组求第k大值}\label{ux6811ux72b6ux6570ux7ec4ux6c42ux7b2ckux5927ux503c}
+
+树状数组记录的是对应数字出现的次数
+
+\begin{minted}[]{cpp}
+int kth(int rk) {//求第rk大
+    int siz = log2(n);//最大的幂
+    int num = 0,pos = 0;//num为当前统计数量，pos为当前计算的位置
+    rk = cnt-rk+1;//转换为第 cnt-rk+1 小
+    for(int i = siz;~i;i--) {//计算到-1时结束
+        pos += 1<<i;//累加位置
+        //位置不能大于等于n，并且数量不能大于等于rk
+        //也就是说到达一个边界，使得当前位置都不满足，那么下面一个位置一定是满足条件的
+        if(pos>=n||num + tree[pos]>=rk) {
+            pos -= 1<<i;
+        }
+        else num += tree[pos];//满足条件，累加数量
+    }
+    return pos+1;//下一个位置即为结果
+}
+\end{minted}
+
+\subsection{3.3 主席树}\label{ux4e3bux5e2dux6811}
+
+查询区间\([l, r]\)中第k小的值
+
+\begin{minted}[]{cpp}
+const int N = 200000 + 5;
+struct Seg {
+    int ls, rs;
+    int sum;
+}t[N*40];
+int rt[N], tot;
+vector<int> all;
+int n, a[N], l, r, k, m;
+int build(int l, int r) {
+    int p = ++tot;
+    if(l == r) {
+        t[p].sum = 0;
+        return p;
+    }
+    int mid = (l + r) >> 1;
+    t[p].ls = build(l, mid);
+    t[p].rs = build(mid+1, r);
+    t[p].sum = 0;
+    return p;
+}
+int insert(int now, int l, int r, int pos, int val) {
+    int p = ++tot;
+    t[p] = t[now];
+    if(l == r){
+        t[p].sum += val;
+        return p;
+    }
+    int mid = (l + r) >> 1;
+    if(pos <= mid) t[p].ls = insert(t[now].ls, l, mid, pos, val);
+    else t[p].rs = insert(t[now].rs, mid+1, r, pos, val);
+    t[p].sum = t[t[p].ls].sum + t[t[p].rs].sum;
+    return p;
+}
+int ask(int p, int q, int l, int r, int k) {
+    if(l == r) return l;
+    int mid = (l + r) >> 1;
+    int lcnt = t[t[q].ls].sum - t[t[p].ls].sum;
+    if(k <= lcnt) return ask(t[p].ls, t[q].ls, l, mid, k);
+    else return ask(t[p].rs, t[q].rs, mid+1, r, k - lcnt);
+}
+int main(){
+    scanf("%d%d", &n, &m);
+    for(int i = 1;i <= n;i++) {
+        scanf("%d", &a[i]);
+        all.push_back(a[i]);
+    }
+    sort(all.begin(), all.end());
+    all.erase(unique(all.begin(), all.end()), all.end()); //离散化
+    for(int i = 1;i <= n;i++) {
+        a[i] = lower_bound(all.begin(), all.end(), a[i]) - all.begin() + 1;
+    }
+    rt[0] = build(1, all.size());//初始线段树
+    for(int i = 1;i <= n;i++) {
+        rt[i] = insert(rt[i-1], 1, all.size(), a[i], 1);
+    }
+    while(m--) {
+        scanf("%d%d%d", &l, &r, &k);//[l, r] 区间内第k大值
+        printf("%d\n", all[ask(rt[l-1], rt[r], 1, all.size(), k) - 1]);
+    }
+    return 0;
+}
+\end{minted}
+
+\newpage
+
+\pagestyle{fancy}
+
+\fancyhead[RO,LE]{\textbf{ACM 模板  by Lese}}
+
+\section{4 图论}\label{ux56feux8bba}
+
+\subsection{4.1 最短路}\label{ux6700ux77edux8def}
+
+\subsubsection{4.1.1 Dijkstra
+单源最短路径}\label{dijkstra-ux5355ux6e90ux6700ux77edux8defux5f84}
+
+\begin{minted}[]{cpp}
+#include<iostream>
+#include<cstring>
+#include<algorithm>
+using namespace std;
+const int INF = 0x3f3f3f3f;
+const int MAXN = 105;
+int map[MAXN][MAXN],book[MAXN],dis[MAXN],n;
+void dijkstra(int s) {
+    for(int i = 1;i <= n;i++) {//初始化dis数组
+        dis[i]=map[s][i];
+    }
+    memset(book, 0, sizeof(book));//初始化
+    book[s] = 1;//标记
+    for(int i = 1;i < n;i++) {
+        int minn = INF,u;
+        for(int j = 1;j <= n;j++) {
+            if(!book[j] && dis[j]<minn) {//寻找最短路
+                minn = dis[j];
+                u = j;
+            }
+        }
+        book[u] = 1;//标记该点
+        for(int j = 1;j <= n;j++) {
+            if(map[u][j]<INF)
+                dis[j] = min(dis[j],dis[u]+map[u][j]);//更新
+        }
+    }
+}
+int main() {
+    int s,u,v,w,m;
+    cin>>n>>m;
+    for(int i = 1;i <= n;i++)//初始化
+        for(int j = i;j <= n;j++)
+        map[i][j] = map[j][i] = (i==j)?0:INF;
+    for(int i = 1;i <= m;i++) {
+        cin>>u>>v>>w;
+        map[u][v] = map[v][u] = min(w, map[u][v]);
+    }
+    cin>>s;//起点
+    dijkstra(s);
+    for(int i = 1;i <= n;i++) {
+        cout<<dis[i]<<' ';
+    }
+    cout<<endl;
+    return 0;
+}
+\end{minted}
+
+\subsubsection{4.1.2 Dijkstra 算法 +
+堆优化}\label{dijkstra-ux7b97ux6cd5-ux5806ux4f18ux5316}
+
+\begin{minted}[]{cpp}
+#include<iostream>
+#include<cstring>
+#include<queue>
+#include<vector>
+#include<algorithm>
+#define ll long long
+#define INF 0x3f3f3f3f3f3f3f3f
+using namespace std;
+const int MAXN = 1e5+5;
+struct edge {
+    ll dot,val;
+    friend bool operator < (edge a,edge b) {
+        return a.val > b.val;//先小
+    }
+};
+ll n,m,s,vis[MAXN],dis[MAXN];//vis判断当前是否已经确定，dis为长度
+vector<edge> g[MAXN];//存图
+void dijkstra(int dot) {
+    for(int i = 1;i <= n;i++) dis[i] = INF;         //初始化
+    dis[dot] = 0;                                   //源点为0
+    priority_queue<edge> q;                         //优先队列
+    q.push(edge{dot,0});                            //源点入队列
+    while(!q.empty()) {
+        edge tmp = q.top();q.pop();
+        if(vis[tmp.dot]) continue;                  //跳过已确定的
+        else vis[tmp.dot] = 1;                      //否则标记
+        for(int i = 0;i < g[tmp.dot].size();i++) {  //遍历所有可到达点
+            edge now = g[tmp.dot][i];
+            if(dis[now.dot]>dis[tmp.dot]+now.val) { //松弛操作
+                dis[now.dot] = dis[tmp.dot]+now.val;
+                //未访问，则继续入队
+                if(!vis[now.dot]) q.push(edge{now.dot,dis[now.dot]});
+            }
+        }
+    }
+}
+int main() {
+    cin>>n>>m>>s;
+    for(int i = 1;i <= m;i++) {
+        ll u,v,w;
+        cin>>u>>v>>w;
+        g[u].push_back(edge{v,w});                  //建图
+    }
+    dijkstra(s);                                    //跑dijkstra
+    for(int i = 1;i <= n;i++) {
+        if(i!=1) cout<<" ";
+        cout<<dis[i];
+    }
+    return 0;
+}
+\end{minted}
+
+\subsubsection{4.1.3 单源最短路
+SPFA}\label{ux5355ux6e90ux6700ux77edux8def-spfa}
+
+\begin{minted}[]{cpp}
+#include<iostream>
+#include<vector>
+#include<queue>
+#include<algorithm>
+#define ll long long
+#define INF 0x3f3f3f3f
+using namespace std;
+const int MAXN = 1e5+5;
+struct edge{
+    ll dot,val;//dot为指向点，val为边值
+};
+ll n,m,s,dis[MAXN];         //dis保存距离
+bool vis[MAXN];             //判断是否在队列中（true为可入队）
+vector<edge> g[MAXN];       //存图
+void spfa(int dot) {
+    for(int i = 1;i <= n;++i) dis[i] = INF,vis[i] = true;//初始化
+    queue<int> q;
+    q.push(dot);                                //初始化入队源点
+    dis[dot] = 0;                               //源点的距离为0
+    vis[dot] = false;                           //不可入队
+    while(!q.empty()) {                         //若队列不为空
+        int tmp = q.front();q.pop();
+        vis[tmp] = true;                        //出入之后修改vis
+        for(int i = 0;i < g[tmp].size();++i) {
+            edge now = g[tmp][i];               //指向点及边值
+            if(dis[now.dot]>dis[tmp]+now.val) { //可松弛
+                dis[now.dot] = dis[tmp] + now.val;//取小值
+                if(vis[now.dot]) {              //判断是否可以入队
+                    q.push(now.dot);
+                    vis[now.dot] = false;       //更新vis
+                }
+            }
+        }
+    }
+}
+int main() {
+    cin>>n>>m>>s;
+    for(int i = 1;i <= m;i++) {
+        int u,v,w;
+        cin>>u>>v>>w;
+        g[u].push_back(edge{v,w});          //建图
+    }
+    spfa(s);                                //从s点开始spfa
+    for(int i = 1;i <= n;i++) {
+        if(i!=1) cout<<" ";
+        if(dis[i]==INF) cout<<(1<<31)-1;    //不可到的特殊答案
+        else cout<<dis[i];
+    }
+    cout<<"\n";
+    return 0;
+}
+
+\end{minted}
+
+\subsection{4.2 最小生成树}\label{ux6700ux5c0fux751fux6210ux6811}
+
+\subsubsection{4.2.1 Prim算法}\label{primux7b97ux6cd5}
+
+\begin{minted}[]{cpp}
+#define INF 0x3f3f3f3f
+const int MAXN = 5e3+5;
+int a[MAXN][MAXN], d[MAXN], n, m, ans;                  //a记录原图，d记录当前较短距离
+bool v[MAXN];                                           //v记录当前点是否被选过
+int prim(int u) {//u为起点
+    int ans = 0;
+    for(int i = 1;i <= n;i++) {                         //记录所有从u开始的路径长度
+        d[i] = a[u][i];
+    }
+    memset(v, 0, sizeof v);
+    v[u] = 1;
+    for(int i = 1;i < n;i++) {
+        int x = 0;                                      //x为距离较短的点编号
+        for(int j = 1;j <= n;j++)
+            if(!v[j] && (x == 0 || d[j] < d[x])) x = j;
+        if(d[x]==INF) return -1;                        //原图不连通
+        v[x] = 1;
+        ans += d[x];
+        for(int y = 1;y <= n;y++)
+            if(!v[y]) d[y] = min(d[y], a[x][y]);        //更新对应距离
+    }
+    return ans;
+}
+int main() {
+    cin >> n >> m;
+    memset(a, 0x3f, sizeof a);
+    for(int i = 1;i <= n;i++) a[i][i] = 0;              //自环距离为0
+    for(int i = 1;i <= m;i++) {
+        int x,y,z;
+        scanf("%d%d%d", &x, &y, &z);
+        a[y][x] = a[x][y] = min(a[x][y], z);            //更新为较小值
+    }   
+    int ans = prim(1);
+    if(ans==-1) cout<<"orz";                            //不连通
+    else cout<<ans;
+    return 0;
+}
+\end{minted}
+
+\subsubsection{4.2.2 Prim+堆优化}\label{primux5806ux4f18ux5316}
+
+\begin{minted}[]{cpp}
+const int MAXN = 5e3+5;
+struct node {
+    int dot, val;
+    friend bool operator < (node a, node b) {
+        return a.val > b.val;                       //优先权值小的
+    }
+};
+int n, m;
+bool v[MAXN];                                       //v记录当前点是否被选过
+vector<node> g[MAXN];
+int prim(int u) {                                   //u为起点
+    priority_queue<node> q;
+    memset(v, 0, sizeof v);                         //初始化所有点未访问
+    v[u] = 1;                                       //标记起点
+    int ans = 0;
+    for(int i = 0;i < g[u].size();i++) {            //起点可以到达的所有位置
+        q.push(g[u][i]);
+    }
+    for(int i = 1;i < n;i++) {
+        while(!q.empty()&&v[q.top().dot]) q.pop();  //先清空所有已访问的点
+        if(q.empty()) return -1;                    //若为空，表示原图不连通
+        node now = q.top();q.pop();                 //取队首的点
+        v[now.dot] = 1;
+        ans += now.val;
+        for(int j = 0;j < g[now.dot].size();j++) {  //遍历该点的所有指向点
+            node tmp = g[now.dot][j];
+            if(v[tmp.dot]) continue;                //跳过已访问的点
+            q.push(tmp);
+        }
+    }
+    return ans;
+}
+int main() {
+    cin >> n >> m;
+    for(int i = 1;i <= m;i++) {
+        int x, y, z;
+        scanf("%d%d%d", &x, &y, &z);
+        g[x].push_back({y, z});                         //存边
+        g[y].push_back({x, z});
+    }
+    int ans = prim(1);
+    if(ans==-1) cout<<"orz";                            //不连通
+    else cout<<ans;
+    return 0;
+}
+\end{minted}
+
+\subsubsection{4.2.3 Kruskal算法}\label{kruskalux7b97ux6cd5}
+
+\begin{minted}[]{cpp}
+#include<iostream>//ac
+#include<vector>
+#include<algorithm>
+using namespace std;
+const int MAXN = 2e5+5;
+struct node{
+    int x,y,z;
+    friend bool operator < (node a,node b) {
+        return a.z < b.z;                       //优先边权小的
+    }
+}a[MAXN];
+int dis[MAXN];                                  //记录祖先节点
+int getf(int p) {                               //求祖先，路径压缩
+    return dis[p]==p?p:dis[p]=getf(dis[p]);
+}
+int main() {
+    int n,m;
+    cin>>n>>m;
+    for(int i = 1;i <= n;i++) dis[i] = i;       //初始化祖先为本身
+    for(int i = 1;i <= m;i++) {
+        int x,y,z;
+        cin>>x>>y>>z;
+        a[i] = {x,y,z};                         //存边
+    }
+    sort(a+1,a+1+m);                            //按边权从小到大排序
+    int ans = 0, cnt = 1;                       //初始化连通块数量为1
+    for(int i = 1;i <= m;i++) {                 //在m个边里面选择
+        node tmp = a[i];
+        if(getf(tmp.x)!=getf(tmp.y)) {          //若两个点还未连接
+            ans += tmp.z;                       //添加边权值
+            cnt++;
+            dis[getf(tmp.x)] = dis[getf(tmp.y)];//结合
+        }
+    }
+    if(cnt!=n) cout<<"orz";                     //表示该图不联通
+    else cout<<ans;
+    return 0;
+}
+\end{minted}
+
+\subsection{4.3 并查集}\label{ux5e76ux67e5ux96c6}
+
+\begin{minted}[]{cpp}
+const int MAXN = 2e5+5;
+int dis[MAXN];
+void init(int n) {
+    for(int i = 1;i <= n;i++) dis[i] = i;
+}
+int getf(int pos) {
+    return dis[pos]==pos?pos:dis[pos] = getf(dis[pos]);
+}
+void Merge(int u,int v) {
+    u = getf(u), v = getf(v);
+    if(u==v) return;
+    dis[v] = u;
+}
+\end{minted}
+
+\subsection{4.4
+最近公共祖先}\label{ux6700ux8fd1ux516cux5171ux7956ux5148}
+
+\subsubsection{4.4.1 树上倍增法}\label{ux6811ux4e0aux500dux589eux6cd5}
+
+\begin{minted}[]{cpp}
+#include<iostream>
+#include<cmath>
+#include<vector>
+#include<queue>
+#include<algorithm>
+#define fast ios::sync_with_stdio(0),cin.tie(0),cout.tie(0)
+#define ll long long
+using namespace std;
+const int MAXN = 5e5+5;
+vector<int> g[MAXN];
+int dep[MAXN], f[MAXN][20];
+int n, m, s, siz;
+void bfs(int s) {//s为根节点
+    siz = (int)(log(n)/log(2)) + 1;
+    queue<int> q;
+    q.push(s);
+    dep[s] = 1;
+    while(!q.empty()) {
+        int x = q.front();q.pop();
+        for(int i = 0;i < g[x].size();i++) {
+            int dot = g[x][i];
+            if(dep[dot]) continue;
+            dep[dot] = dep[x] + 1;
+            f[dot][0] = x;
+            for(int j = 1;j <= siz;j++)
+                f[dot][j] = f[f[dot][j-1]][j-1];
+            q.push(dot);
+        }
+    }
+}
+int lca(int x, int y) {
+    if(dep[x] > dep[y]) swap(x, y);//让y为深度最大的点，使y向上寻找
+    for(int i = siz;i >= 0;i--)
+        if(dep[f[y][i]] >= dep[x]) y = f[y][i];
+    if(x == y) return x;
+    for(int i = siz;i >= 0;i--) 
+        if(f[x][i] != f[y][i]) x = f[x][i], y = f[y][i];
+    return f[x][0];//父节点即为LCA
+}
+int main() {
+    fast;
+    cin>>n>>m>>s;
+    for(int i = 1;i <= n-1;i++) {
+        int u, v;
+        cin>>u>>v;
+        g[u].push_back(v);//存边
+        g[v].push_back(u);
+    }
+    bfs(s);//预处理
+    for(int i = 1;i <= m;i++) {
+        int a,b;
+        cin>>a>>b;
+        cout<<lca(a,b)<<"\n";
+    }
+    return 0;
+}
+\end{minted}
+
+\subsection{4.5 二分图匹配}\label{ux4e8cux5206ux56feux5339ux914d}
+
+\begin{minted}[]{cpp}
+const int MAXN = 505;
+int k,m,n;
+int vis[MAXN],match[MAXN];                          //vis标记当前对象是否判断过
+//match保存当前对象匹配的值（保存起点值）
+vector<int> g[MAXN];                                //存图
+int dfs(int u) {//起始点
+    for(int i = 0;i < g[u].size();i++) {            //遍历所有指向边找匹配
+        int now = g[u][i];                          //指向点
+        if(vis[now]) continue;                      //跳过已判断的
+        vis[now] = 1;                               //标记
+        if(match[now]==0||dfs(match[now])) {        //还未匹配，或已匹配的有新的匹配对象
+            match[now] = u;                         //保存匹配的值（u->now）
+            return 1;
+        }
+    }
+    return 0;//没找到，则说明不存在此增广路（匹配）
+}
+int hungarian() {//计算二分匹配的最大数量
+    int ans = 0;
+    for(int i = 1;i <= m;i++) {                     //遍历起始点集合的所有元素
+        for(int j = 1;j <= n;j++) vis[j] = 0;       //标记清零
+        if(dfs(i)) ans++;                           //若有找到一个匹配则增加
+    }
+    return ans;
+}
+int main() {
+    while(cin>>k&&k) {
+        memset(match,0,sizeof(match));              //初始化
+        cin>>m>>n;
+        for(int i = 1;i <= m;i++) g[i].clear();     //初始化
+        for(int i = 1;i <= k;i++) {
+            int x,y;
+            cin>>x>>y;
+            g[x].push_back(y);                      //存图
+        }
+        //封装后，直接调用
+        cout<<hungarian()<<"\n";
+    }
+    return 0;
+}
+\end{minted}
+
+\newpage
+
+\pagestyle{fancy}
+
+\fancyhead[RO,LE]{\textbf{ACM 模板  by Lese}}
+
+\section{5 其他}\label{ux5176ux4ed6}
+
+\subsection{5.1 宏定义}\label{ux5b8fux5b9aux4e49}
+
+\begin{minted}[]{cpp}
+// #include <bits/stdc++.h>
+#include<iostream>
+#include<cstring>
+#include<cstdio>
+#include<cmath>
+#include<vector>
+#include<string>
+#include<sstream>
+#include<queue>
+#include<stack>
+#include<map>
+#include<set>
+#include<utility>
+#include<bitset>
+#include<algorithm>
+#define fast ios::sync_with_stdio(0),cin.tie(0),cout.tie(0)
+#define ll long long
+#define INF 0x3f3f3f3f
+#define pii pair<int,int>
+#define fi first
+#define se second
+using namespace std;
+const int MAXN = 2e5+5;
+const int MOD = 1e9+7;
+\end{minted}
+
+\subsection{5.2 高精度}\label{ux9ad8ux7cbeux5ea6}
+
+高精度，支持加法和乘法
+
+\begin{minted}[]{cpp}
+struct BigInt {
+    const static int mod = 10000;
+    const static int DLEN = 4;
+    const static int MAX = 700;
+    int a[MAX], len;
+    BigInt() {
+        memset(a, 0, sizeof(a));
+        len = 1;
+    }
+    BigInt(int v) {
+        memset(a, 0, sizeof(a));
+        len = 0;
+        do {
+            a[len++] = v%mod;
+            v /= mod;
+        }while(v);
+    }
+    BigInt(const char s[]) {
+        memset(a, 0, sizeof(a));
+        int L = strlen(s);
+        len = L/DLEN;
+        if(L%DLEN) len++;
+        int index = 0;
+        for(int i = L-1;i >= 0;i -= DLEN) {
+            int t = 0;
+            int k = i - DLEN + 1;
+            if(k < 0) k = 0;
+            for(int j = k;j <= i;j++) 
+                t = t*10 + s[j] - '0';
+            a[index++] = t;
+        }
+    }
+    BigInt operator + (const BigInt &b) const {
+        BigInt res;
+        res.len = max(len, b.len);
+        for(int i = 0;i <= res.len;i++) 
+            res.a[i] = 0;
+        for(int i = 0;i <res.len;i++) {
+            res.a[i] += ((i < len)?a[i]:0)+((i < b.len)?b.a[i]:0);
+            res.a[i+1] += res.a[i]/mod;
+            res.a[i] %= mod;
+        }
+        if(res.a[res.len] > 0) res.len++;
+        return res;
+    }
+    BigInt operator *(const BigInt &b) const {
+        BigInt res;
+        for(int i = 0;i < len;i++) {
+            int up = 0;
+            for(int j = 0;j < b.len;j++) {
+                int temp = a[i]*b.a[j] + res.a[i+j] + up;
+                res.a[i+j] = temp%mod;
+                up = temp/mod;
+            }
+            if(up != 0) 
+                res.a[i + b.len] = up;
+        }
+        res.len = len + b.len;
+        while(res.a[res.len - 1] == 0 && res.len > 1) res.len--;
+        return res;
+    }
+    void output() {
+        printf("%d", a[len-1]);
+        for(int i = len-2;i >= 0;i--) 
+            printf("%04d", a[i]);
+        printf("\n");
+    }
+};
+int main() {
+    char a[3006], b[3006];
+    cin>>a>>b;
+    BigInt A(a), B(b);
+    // A = A+B;
+    A = A*B;
+    A.output();
+    return 0;
+}
+\end{minted}
+
+\subsection{5.3 手动扩栈}\label{ux624bux52a8ux6269ux6808}
+
+\begin{minted}[]{cpp}
+//放在主函数前面即可
+
+int size=256<<20;//256MB
+char*p=(char*)malloc(size)+size;
+__asm__ __volatile__("movq %0, %%rsp\n" :: "r"(p));//64bit
+
+int __size__ = 256<<20;
+char *__p__ = (char *)malloc(__size__)+__size__;
+__asm__("movl %0,%%esp\n"::"r"(__p__)); //32bit
+
+//最后需要写一句 exit(0); 退出程序
+\end{minted}
+
+\subsection{5.4 输入输出挂}\label{ux8f93ux5165ux8f93ux51faux6302}
+
+快读（fread版）：
+
+\begin{minted}[]{cpp}
+inline char gch()
+{
+    static char buf[100010], *h = buf, *t = buf;
+    return h == t && (t = (h = buf) + fread(buf, 1, 100000, stdin), h == t) ? EOF : *h ++;
+}
+template<class T>
+inline void re(T &x)
+{
+    x = 0;
+    char a; bool b = 0;
+    while(!isdigit(a = gch()))
+        b = a == '-';
+    while(isdigit(a))
+        x = (x << 1) + (x << 3) + a - '0', a = gch();
+    if(b == 1)
+        x *= -1;
+}
+\end{minted}
+
+快写：
+
+\begin{minted}[]{cpp}
+template <typename T>
+void o(T p) {
+    static int stk[70], tp;
+    if (p == 0) {
+        putchar('0');
+        return;
+    }
+    if (p < 0) {
+        p = -p;
+        putchar('-');
+    }
+    while (p) stk[++tp] = p % 10, p /= 10;
+    while (tp) putchar(stk[tp--] + '0');
+}
+\end{minted}
+
+\subsection{5.5
+输入输出重定向}\label{ux8f93ux5165ux8f93ux51faux91cdux5b9aux5411}
+
+\begin{minted}[]{cpp}
+freopen("dat.in","r",stdin);
+freopen("dat.out","w",stdout);
+fclose(stdin);
+fclose(stdout);
+\end{minted}
+
+\subsection{5.6
+字符串流输入}\label{ux5b57ux7b26ux4e32ux6d41ux8f93ux5165}
+
+\begin{minted}[]{cpp}
+#include<iostream>
+#include<string>
+#include<sstream>
+using namespace std;
+int main() {
+    string s,tmp;
+    while(getline(cin, s)) {
+        stringstream ss(s);
+        while(ss>>tmp) {//速度很慢
+            cout<<tmp<<"\n";
+        }
+    }
+    return 0;
+}
+\end{minted}
+
+\subsection{5.7 VIM现场赛配置}\label{vimux73b0ux573aux8d5bux914dux7f6e}
+
+\begin{minted}[]{bash}
+syntax on
+set nu
+set tabstop=4
+set shiftwidth=4
+set cin
+colo evening
+set mouse=a
+\end{minted}
+
+\end{document}

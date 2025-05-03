@@ -10,11 +10,14 @@ PDF=$FILENAME.pdf
 rm -rf $OUTPUTDIR
 mkdir -p $OUTPUTDIR
 
+cat icpcfoundation.jpg > $OUTPUTDIR/icpcfoundation.jpg
 cat header.md > $OUTPUTDIR/$MARKDOWN
+echo "\\\pagestyle{fancy}\n \\\fancyhead[RO,LE]{\\\textbf{ACM 模板  by Lese}}\n" >> $OUTPUTDIR/$MARKDOWN
 for file in `ls $SRCDIR`
 do
     if [ -f $SRCDIR/$file ]; then
-        echo "\newpage" >> $OUTPUTDIR/$MARKDOWN
+        echo "\\\newpage\n \\\pagestyle{fancy}\n" >> $OUTPUTDIR/$MARKDOWN
+        echo "\\\fancyhead[RO,LE]{\\\textbf{ACM 模板  by Lese}}\n" >> $OUTPUTDIR/$MARKDOWN
         echo >> $OUTPUTDIR/$MARKDOWN
         cat $SRCDIR/$file >> $OUTPUTDIR/$MARKDOWN
     else
@@ -25,6 +28,7 @@ done
 cd $OUTPUTDIR
 
 pandoc -F pandoc-minted -s $MARKDOWN -o $TEX --toc-depth=2
+
 sed -i '/^\\maketitle$/i \\\begin{titlepage}' $TEX
 sed -i '/^\\maketitle$/a \\\thispagestyle{empty}\n\\\end{titlepage}' $TEX
 
