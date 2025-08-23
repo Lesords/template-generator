@@ -16,22 +16,22 @@ const int MAXN = 2e5+5;
 struct node {
     int x,y;
 };
-vector<int> edge[MAXN],ord;//±£´æ±ßºÍÍØÆËĞòÁĞ
-vector<node> ans,both;//ÓĞÏò±ßºÍÎŞÏò±ß
+vector<int> edge[MAXN],ord;//ä¿å­˜è¾¹å’Œæ‹“æ‰‘åºåˆ—
+vector<node> ans,both;//æœ‰å‘è¾¹å’Œæ— å‘è¾¹
 int in[MAXN],n,m,pos[MAXN];
-bool toposort() {//ÍØÆËÅÅĞò
-    queue<int> q;//±£´æ0Èë¶ÈµÄµã
+bool toposort() {//æ‹“æ‰‘æ’åº
+    queue<int> q;//ä¿å­˜0å…¥åº¦çš„ç‚¹
     for(int i = 1;i <= n;i++) if(!in[i]) q.push(i);
     int tmp;
     while(!q.empty()) {
         tmp = q.front();q.pop();
-        ord.push_back(tmp);//ÏÂ±ê²»ÄÜÔö¼ÓÖµ
-        for(int i = 0;i < edge[tmp].size();i++) {//ËùÓĞÖ¸ÏòµãÈë¶È--
+        ord.push_back(tmp);//ä¸‹æ ‡ä¸èƒ½å¢åŠ å€¼
+        for(int i = 0;i < edge[tmp].size();i++) {//æ‰€æœ‰æŒ‡å‘ç‚¹å…¥åº¦--
             int dot = edge[tmp][i];
-            if(--in[dot]==0) q.push(dot);//Èë¶ÈÎª0µÄµã·ÅÈë¶ÓÁĞ
+            if(--in[dot]==0) q.push(dot);//å…¥åº¦ä¸º0çš„ç‚¹æ”¾å…¥é˜Ÿåˆ—
         }
     }
-    return ord.size()==n;//ÎªnËµÃ÷ÎŞ»·
+    return ord.size()==n;//ä¸ºnè¯´æ˜æ— ç¯
 }
 int main() {
     int _;
@@ -40,26 +40,26 @@ int main() {
         cin>>n>>m;
         for(int i = 1;i <= n;i++) edge[i].clear();
         ans.clear(),both.clear(),ord.clear();
-        memset(in,0,sizeof(in));//³õÊ¼»¯£¡£¡£¡
+        memset(in,0,sizeof(in));//åˆå§‹åŒ–ï¼ï¼ï¼
         int t,x,y;
         for(int i = 1;i <= m;i++) {
             cin>>t>>x>>y;
-            if(t) {//ÓĞÏò±ß
+            if(t) {//æœ‰å‘è¾¹
                 edge[x].push_back(y);//x->y
-                in[y]++;//Èë¶È
+                in[y]++;//å…¥åº¦
                 ans.push_back(node{x,y});
             }
             else both.push_back(node{x,y});
         }
         if(toposort()) {
             cout<<"YES"<<endl;
-            for(int i = 0;i < ans.size();i++) {//ÏÈÊä³öÓĞÏò±ß
+            for(int i = 0;i < ans.size();i++) {//å…ˆè¾“å‡ºæœ‰å‘è¾¹
                 cout<<ans[i].x<<' '<<ans[i].y<<endl;
-            }//ord´Ó0¿ªÊ¼
-            for(int i = 0;i < n;i++) pos[ord[i]] = i;//±£´æ¶ÔÓ¦µãÔÚÍØÆËĞòÁĞÖĞµÄÎ»ÖÃ
+            }//ordä»0å¼€å§‹
+            for(int i = 0;i < n;i++) pos[ord[i]] = i;//ä¿å­˜å¯¹åº”ç‚¹åœ¨æ‹“æ‰‘åºåˆ—ä¸­çš„ä½ç½®
             for(int i = 0;i < both.size();i++) {
                 int tx = both[i].x,ty = both[i].y;
-                //Î»ÖÃĞ¡µÄ->Î»ÖÃ´óµÄ
+                //ä½ç½®å°çš„->ä½ç½®å¤§çš„
                 if(pos[tx]<pos[ty]) cout<<tx<<' '<<ty<<endl;
                 else cout<<ty<<' '<<tx<<endl;
             }

@@ -8,7 +8,7 @@ using namespace std;
 const int MAXN = 2e5+5;
 int a[MAXN],ll[MAXN],rr[MAXN],belong[MAXN],mark[MAXN];
 
-void add(int l,int r) {//Ôö¼Ó²Ù×÷
+void add(int l,int r) {//å¢åŠ æ“ä½œ
 	if(belong[l]==belong[r]) {
 		for(int i = l;i <= r;i++) {
 			a[i]++;
@@ -26,12 +26,12 @@ int main() {
 	cin.tie(0),cout.tie(0);
 	cin>>n>>m;
 
-	//·Ö¿é³õÊ¼»¯
-	block = sqrt(n);//¿éµÄ³¤¶È
-	num = n/block;//¿éµÄÊıÁ¿
+	//åˆ†å—åˆå§‹åŒ–
+	block = sqrt(n);//å—çš„é•¿åº¦
+	num = n/block;//å—çš„æ•°é‡
 	if(n%block) num++;
 	for(int i = 1;i <= num;i++) {
-		ll[i] = (i-1)*block+1;//µÚi¸ö¿éµÄ×óÓÒ½ç
+		ll[i] = (i-1)*block+1;//ç¬¬iä¸ªå—çš„å·¦å³ç•Œ
 		rr[i] = i*block;
 	}
 	rr[num] = n;
@@ -41,9 +41,9 @@ int main() {
 
 	while(m--) {
 		cin>>l>>r;
-		add(l,r);//Çø¼äÔö¼Ó
+		add(l,r);//åŒºé—´å¢åŠ 
 	}
-	for(int i = 1;i <= n;i++) {//µ¥¸ö²éÑ¯
+	for(int i = 1;i <= n;i++) {//å•ä¸ªæŸ¥è¯¢
 		a[i] += mark[belong[i]];
 	}
 

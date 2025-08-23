@@ -4,7 +4,7 @@ using namespace std;
 const int MAXN = 1e6 + 5;
 bool a[MAXN];
 int main() {
-	memset(a,false,sizeof(a));//falseÎªËØÊı
+	memset(a,false,sizeof(a));//falseä¸ºç´ æ•°
 	for(int i = 2;i < MAXN;i++) {
 		if(!a[i]) {
 			for(int j = i + i;j < MAXN;j += i) a[j] = true;

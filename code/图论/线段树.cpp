@@ -2,34 +2,34 @@
 #define ll long long
 using namespace std;
 const int MAXN = 1e5 + 5;
-ll m,sum[MAXN<<2];//MAXN<<2 µÈÓÚ MAXN*4
+ll m,sum[MAXN<<2];//MAXN<<2 ç­‰äº MAXN*4
 void add_op(int t,int v,int l,int r,int rt) {
-	if(l==r) {//²»¿É·Ö½Úµã
+	if(l==r) {//ä¸å¯åˆ†èŠ‚ç‚¹
 		sum[rt] = v;
 		return ;
 	}
 	int mid = (l+r)>>1;
-	//(l+r)>>1 µÈÓÚ  (l+r)/2
-	//rt<<1 µÈÓÚ rt*2
-	//rt<<1|1 µÈÓÚ rt*2+1
-	if(t<=mid) add_op(t,v,l,mid,rt<<1);//×ó°ëÇø¼ä
-	else add_op(t,v,mid+1,r,rt<<1|1);//ÓÒ°ëÇø¼ä
-	sum[rt] = sum[rt<<1] * sum[rt<<1|1] % m;//¸üĞÂ
+	//(l+r)>>1 ç­‰äº  (l+r)/2
+	//rt<<1 ç­‰äº rt*2
+	//rt<<1|1 ç­‰äº rt*2+1
+	if(t<=mid) add_op(t,v,l,mid,rt<<1);//å·¦åŠåŒºé—´
+	else add_op(t,v,mid+1,r,rt<<1|1);//å³åŠåŒºé—´
+	sum[rt] = sum[rt<<1] * sum[rt<<1|1] % m;//æ›´æ–°
 }
 int main() {
 	int T,n;
-	ios::sync_with_stdio(false);//¼ÓËÙ
+	ios::sync_with_stdio(false);//åŠ é€Ÿ
 	cin>>T;
 	while(T--) {
 		cin>>n>>m; 
-		for(int i=1;i<=n<<2;i++) sum[i] = 1;//³õÊ¼»¯Îª1
+		for(int i=1;i<=n<<2;i++) sum[i] = 1;//åˆå§‹åŒ–ä¸º1
 		char op;
 		int tmp;
 		for(int i=1;i<=n;i++) {
 			cin>>op>>tmp;
-			if(op=='M') add_op(i,tmp,1,n,1);//½ÚµãiµÄÖµ¸ÄÎªtmp
-			else add_op(tmp,1,1,n,1);//½ÚµãtmpµÄÖµ¸ÄÎª1
-			cout<<sum[1]<<endl;//Êä³ö¸ù½ÚµãµÄÖµ
+			if(op=='M') add_op(i,tmp,1,n,1);//èŠ‚ç‚¹içš„å€¼æ”¹ä¸ºtmp
+			else add_op(tmp,1,1,n,1);//èŠ‚ç‚¹tmpçš„å€¼æ”¹ä¸º1
+			cout<<sum[1]<<endl;//è¾“å‡ºæ ¹èŠ‚ç‚¹çš„å€¼
 		}
 	}
 	return 0;

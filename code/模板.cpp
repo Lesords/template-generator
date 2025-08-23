@@ -17,7 +17,7 @@
 //#include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-const double PI = acos(-1.0);//¦ĞµÄÖµ 
+const double PI = acos(-1.0);//Ï€çš„å€¼ 
 const double eps = 1e-6;//0.000001
 const int INF = 1000000000;
 const int maxn = 100;
@@ -44,7 +44,7 @@ inline void re(T &x)
 
 int main()
 {
-	ios::sync_with_stdio(false);//¼ÓËÙÊäÈë 
+	ios::sync_with_stdio(false);//åŠ é€Ÿè¾“å…¥ 
     // int a; re(a);
 	/*scanf("%d",&T);
 	while(T--) {

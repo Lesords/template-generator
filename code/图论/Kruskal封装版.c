@@ -1,4 +1,4 @@
-#include<iostream>//²»ÍÆ¼ö
+#include<iostream>//ä¸æ¨è
 #include<vector>
 #include<algorithm>
 using namespace std;
@@ -9,7 +9,7 @@ struct Kruskal{
         friend bool operator < (node a,node b) {
             return a.z < b.z;
         }
-    }a[200005];//±¬±¾µØÕ»
+    }a[200005];//çˆ†æœ¬åœ°æ ˆ
     int dis[5005];
     Kruskal(int n,int m){
         this->n = n;

@@ -3,12 +3,12 @@
 #include<cstring>
 #define MAXN 2000
 using namespace std;
-void initial(string &a, string &b) {//³õÊ¼»¯×Ö·û´® 
+void initial(string &a, string &b) {//åˆå§‹åŒ–å­—ç¬¦ä¸² 
     while(a.size()<b.size()) a='0'+a;
     while(b.size()<a.size()) b='0'+b;}
-void del(string &a) {//É¾³ı×Ö·û´®Ê×²¿µÄ'0' 
+void del(string &a) {//åˆ é™¤å­—ç¬¦ä¸²é¦–éƒ¨çš„'0' 
     if(a[0]=='0') a.erase(0,1);}
-string bigadd(string a, string b) {//´óÊı¼Ó·¨ 
+string bigadd(string a, string b) {//å¤§æ•°åŠ æ³• 
     initial(a, b);
     a='0'+a; b='0'+b;
     for(int i=a.size()-1;i>=0;i--) {
@@ -22,9 +22,9 @@ string bigadd(string a, string b) {//´óÊı¼Ó·¨
     while(a[0]=='0') del(a);
     return a;
 }
-void multiply(int a[], int z) {//½×³Ë 
+void multiply(int a[], int z) {//é˜¶ä¹˜ 
     int c=0;
-    for(int i=MAXN-1;i>=0;i--) {//MAXN-1±£´æµÄÊÇ¸öÎ»Êı£¬´ÓĞ¡µ½´ó¿ªÊ¼¼ÆËã 
+    for(int i=MAXN-1;i>=0;i--) {//MAXN-1ä¿å­˜çš„æ˜¯ä¸ªä½æ•°ï¼Œä»å°åˆ°å¤§å¼€å§‹è®¡ç®— 
         int x=a[i]*z+c;
         a[i]=x%10;
         c=x/10;}
@@ -39,10 +39,10 @@ int main() {
         for(int i=2;i<=n;i++) multiply(ans,i);
         int num=0;
         for(int i=0;i<MAXN;i++) {
-            if(ans[i]) {//ÕÒµ½·ÇÁãÏî 
+            if(ans[i]) {//æ‰¾åˆ°éé›¶é¡¹ 
                 num=i;break;}
         }
-        for(int i=num;i<MAXN;i++) cout<<ans[i];//´Ó·ÇÁãÏî¿ªÊ¼Êä³ö 
+        for(int i=num;i<MAXN;i++) cout<<ans[i];//ä»éé›¶é¡¹å¼€å§‹è¾“å‡º 
         cout<<endl;
     }
     return 0;

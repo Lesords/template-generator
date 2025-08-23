@@ -6,37 +6,37 @@ const int INF = 0x3f3f3f3f;
 const int MAXN = 105;
 int map[MAXN][MAXN],book[MAXN],dis[MAXN],n;
 void dijkstra(int s) {
-    for(int i = 1;i <= n;i++) {//³õÊ¼»¯disÊý×é
+    for(int i = 1;i <= n;i++) {//åˆå§‹åŒ–disæ•°ç»„
         dis[i]=map[s][i];
     }
-    memset(book, 0, sizeof(book));//³õÊ¼»¯
-    book[s] = 1;//±ê¼Ç
+    memset(book, 0, sizeof(book));//åˆå§‹åŒ–
+    book[s] = 1;//æ ‡è®°
     for(int i = 1;i < n;i++) {
         int minn = INF,u;
         for(int j = 1;j <= n;j++) {
-            if(!book[j] && dis[j]<minn) {//Ñ°ÕÒ×î¶ÌÂ·
+            if(!book[j] && dis[j]<minn) {//å¯»æ‰¾æœ€çŸ­è·¯
                 minn = dis[j];
                 u = j;
             }
         }
-        book[u] = 1;//±ê¼Ç¸Ãµã
+        book[u] = 1;//æ ‡è®°è¯¥ç‚¹
         for(int j = 1;j <= n;j++) {
             if(map[u][j]<INF)
-                dis[j] = min(dis[j],dis[u]+map[u][j]);//¸üÐÂ
+                dis[j] = min(dis[j],dis[u]+map[u][j]);//æ›´æ–°
     	}
     }
 }
 int main() {
 	int s,u,v,w,m;
 	cin>>n>>m;
-	for(int i = 1;i <= n;i++)//³õÊ¼»¯
+	for(int i = 1;i <= n;i++)//åˆå§‹åŒ–
 		for(int j = i;j <= n;j++)
 		map[i][j] = map[j][i] = (i==j)?0:INF;
 	for(int i = 1;i <= m;i++) {
 		cin>>u>>v>>w;
 		map[u][v] = map[v][u] = min(w, map[u][v]);
 	}
-	cin>>s;//Æðµã
+	cin>>s;//èµ·ç‚¹
 	dijkstra(s);
 	for(int i = 1;i <= n;i++) {
 		cout<<dis[i]<<' ';

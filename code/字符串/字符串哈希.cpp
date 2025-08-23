@@ -7,7 +7,7 @@
 using namespace std;
 
 //const int M = 1e9 + 7;
-const ll MOD = 212370440130137957ll;//´óÖÊÊý
+const ll MOD = 212370440130137957ll;//å¤§è´¨æ•°
 const int MAXN = 1e4+5;
 struct node{
     ull x,y;
@@ -22,7 +22,7 @@ int idx(char ch) {
     if(ch>='a'&&ch<='z') return ch-'a'+10;
     if(ch>='A'&&ch<='Z') return ch-'A'+36;
 }
-ull get_hash(const string& s, const int bas) {//131»ò13331
+ull get_hash(const string& s, const int bas) {//131æˆ–13331
     ull ans = 0;
     int len = s.size();
     for(int i = 0;i < len;i++) {
@@ -41,7 +41,7 @@ int main() {
     }
     sort(a+1, a+1+n);
     int ans = 1;
-    for(int i = 2;i <= n;i++) {//È¥ÖØ£¬¼ÆËã½á¹û
+    for(int i = 2;i <= n;i++) {//åŽ»é‡ï¼Œè®¡ç®—ç»“æžœ
         if(a[i].x!=a[i-1].x&&a[i].y!=a[i-1].y) ans++;
     }
     cout<<ans<<"\n";
