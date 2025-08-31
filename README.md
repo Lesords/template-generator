@@ -8,9 +8,10 @@
 - [pandoc-minted](https://pypi.org/project/pandoc-minted/)
 
 ```bash
+sudo apt update
 sudo apt install pandoc texlive-latex-recommended \
-         texlive-latex-extra texlive-fonts-recommended
-sudo apt install texlive-xetex
+    texlive-latex-extra texlive-fonts-recommended \
+    texlive-xetex python3-pip
 pip install Pygments pandoc-minted
 ```
 
@@ -63,4 +64,25 @@ sudo apt install texlive-lang-chinese
 
 ```bash
 sudo apt-get install latex-cjk-all
+```
+
+- Ubuntu 24.04 安装 python 库出现的问题
+
+问题描述
+```bash
+error: externally-managed-environment
+
+× This environment is externally managed
+╰─> To install Python packages system-wide, try apt install
+    python3-xyz, where xyz is the package you are trying to
+    install.
+...
+```
+
+解决方法
+```bash
+sudo apt install python3.12-venv
+python3 -m venv venv
+venv/bin/pip3 install Pygments pandoc-minted
+source  venv/bin/activate
 ```
