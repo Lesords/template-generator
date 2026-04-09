@@ -46,6 +46,12 @@ pip3 install --user Pygments pandoc-minted
 ```bash
 sh generate.sh
 bash generate.sh 两种都可
+
+# 不带封面图片（默认）
+bash generate.sh
+
+# 带封面图片
+bash generate.sh --image
 ```
 
 注意：需要到达对应的目录底下
