@@ -7,6 +7,8 @@
 - [Pygments](http://pygments.org/)
 - [pandoc-minted](https://pypi.org/project/pandoc-minted/)
 
+Ubuntu
+
 ```bash
 sudo apt update
 sudo apt install pandoc texlive-latex-recommended \
@@ -16,6 +18,22 @@ pip install Pygments pandoc-minted
 ```
 
 注: 最初版本在 Ubuntu 18.04 可以正常使用，但是在 Ubuntu 20.04 中会出现不兼容的问题，推荐使用 Ubuntu 22.04
+
+Fedora
+
+```bash
+sudo dnf update
+sudo dnf install pandoc \
+    texlive-scheme-medium \
+    texlive-collection-latex \
+    texlive-collection-latexrecommended \
+    texlive-collection-latexextra \
+    texlive-collection-fontsrecommended \
+    texlive-xetex \
+    python3-pip
+sudo dnf install texlive-xecjk texlive-collection-langchinese
+pip3 install --user Pygments pandoc-minted
+```
 
 ## 使用方式
 
