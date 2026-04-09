@@ -12,12 +12,12 @@ mkdir -p $OUTPUTDIR
 
 cat icpcfoundation.jpg > $OUTPUTDIR/icpcfoundation.jpg
 cat header.md > $OUTPUTDIR/$MARKDOWN
-echo "\\\pagestyle{fancy}\n \\\fancyhead[RO,LE]{\\\textbf{ACM 模板  by Lese}}\n" >> $OUTPUTDIR/$MARKDOWN
+printf "\\\pagestyle{fancy}\n \\\fancyhead[RO,LE]{\\\textbf{ACM 模板  by Lese}}\n\n" >> $OUTPUTDIR/$MARKDOWN
 for file in `ls $SRCDIR`
 do
     if [ -f $SRCDIR/$file ]; then
-        echo "\\\newpage\n \\\pagestyle{fancy}\n" >> $OUTPUTDIR/$MARKDOWN
-        echo "\\\fancyhead[RO,LE]{\\\textbf{ACM 模板  by Lese}}\n" >> $OUTPUTDIR/$MARKDOWN
+        printf "\\\newpage\n \\\pagestyle{fancy}\n" >> $OUTPUTDIR/$MARKDOWN
+        printf "\\\fancyhead[RO,LE]{\\\textbf{ACM 模板  by Lese}}\n\n" >> $OUTPUTDIR/$MARKDOWN
         echo >> $OUTPUTDIR/$MARKDOWN
         cat $SRCDIR/$file >> $OUTPUTDIR/$MARKDOWN
     else
