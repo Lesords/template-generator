@@ -36,19 +36,26 @@ cd $OUTPUTDIR
 pandoc -F pandoc-minted -s $MARKDOWN -o $TEX --toc-depth=2
 
 sed -i '/^\\maketitle$/i \\\begin{titlepage}' $TEX
+
 if [ $USE_IMAGE -eq 1 ]; then
-    # Extract author/date from preamble, then suppress them from \maketitle
+    # Extract title/author/date values from preamble for manual placement
+    TITLE=$(grep '^\\title{' $TEX | sed 's/^\\title{\(.*\)}/\1/')
     AUTHOR=$(grep '^\\author{' $TEX | sed 's/^\\author{\(.*\)}/\1/')
     DATE=$(grep '^\\date{' $TEX | sed 's/^\\date{\(.*\)}/\1/')
+    # Suppress all three so \maketitle produces only empty spacing (not visible content)
+    sed -i 's/^\\title{.*}/\\title{}/' $TEX
     sed -i 's/^\\author{.*}/\\author{}/' $TEX
     sed -i 's/^\\date{.*}/\\date{}/' $TEX
     # Escape backslashes for awk -v (awk interprets \X as escape sequences)
+    TITLE_AWK="${TITLE//\\/\\\\}"
     AUTHOR_AWK="${AUTHOR//\\/\\\\}"
     DATE_AWK="${DATE//\\/\\\\}"
-    # Insert: image → author → date after \maketitle
-    awk -v author="$AUTHOR_AWK" -v date="$DATE_AWK" '
+    # Keep \maketitle for its empty spacing, then manually place title/image/author/date
+    awk -v title="$TITLE_AWK" -v author="$AUTHOR_AWK" -v date="$DATE_AWK" '
         /^\\maketitle$/{
             print;
+            print "\\vspace{2cm}";
+            print "\\centerline{" title "}";
             print "\\vspace{5cm}";
             print "\\centerline{\\includegraphics[width=12cm]{icpcfoundation.jpg}}";
             print "\\vspace{1.6cm}";
