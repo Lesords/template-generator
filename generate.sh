@@ -33,7 +33,7 @@ done
 
 cd $OUTPUTDIR
 
-pandoc -F pandoc-minted -s $MARKDOWN -o $TEX --toc-depth=2
+pandoc -F pandoc-minted -s $MARKDOWN -o $TEX --toc-depth=3
 
 sed -i '/^\\maketitle$/i \\\begin{titlepage}' $TEX
 
